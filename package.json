@@ -1,0 +1,21 @@
+{
+  "name": "dialogflow-cx-app",
+  "version": "1.0.0",
+  "description": "export GOOGLE_APPLICATION_CREDENTIALS=\"[PATH]\"\r node index.js",
+  "main": "index.js",
+  "dependencies": {
+    "@google-cloud/dialogflow-cx": "^2.1.0",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "minimist": "^1.2.5",
+    "util": "^0.12.3",
+    "wav": "^1.0.2",
+    "ws": "^7.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chetan177",
+  "license": "ISC"
+}
