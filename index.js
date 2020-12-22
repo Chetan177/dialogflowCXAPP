@@ -1,7 +1,7 @@
 const { SessionsClient } = require('@google-cloud/dialogflow-cx');
 const fs = require('fs');
 const util = require('util');
-const request = require('http')
+const request = require('request')
 const WebSocket = require('ws');
 const argv = require('minimist')(process.argv.slice(2));
 var FileWriter = require('wav').FileWriter;
@@ -138,6 +138,8 @@ wss.on('connection', (ws, req) => {
     ws.on('message', (message) => {
         if (typeof message === 'string') {
             console.log(`received message: ${message}`);
+            calluuid =JSON.parse(message).uuid;
+            console.log(`UUID: ${calluuid}`);
         } else if (message instanceof Buffer) {
             // Stream the audio from audio to Dialogflow.
             if (writeFlag) {
