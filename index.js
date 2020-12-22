@@ -40,10 +40,10 @@ function callWebhook(){
         'https://uez400j4vb.execute-api.us-east-1.amazonaws.com/stage1/casecreate?hostName=dev63210.service-now.com&authToken=YWRtaW46dW1xeFpWd0IwN0tN&contact=9654046510&short_description=create',
         (error, res, body) => {
             if (error) {
-                console.error(error)
+                console.error(error);
                 return
             }
-            sayTTSText("Request has been Created. Your Case number is "+res.response.number,false );
+            sayTTSText("Request has been Created. Your Case number is "+res.response.number, true );
            
         }
     )
@@ -118,16 +118,12 @@ function getDialogflowCXStream() {
                 console.log(`text file ${responseData}`);
                 writeFlag = false;
                 if (data.detectIntentResponse.queryResult.currentPage.displayName == 'End Session'){
-                    sayTTSText(responseData, true);
-       
-
-
+                    sayTTSText(responseData, false);
+                    detectStream.end();
                 }else{
-                    sayTTSText(responseData, true);
-                    
+                    sayTTSText(responseData, false);
                     callWebhook();
                 }
-                detectStream.end();
             }
         });
 
