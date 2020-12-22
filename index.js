@@ -6,7 +6,7 @@ const WebSocket = require('ws');
 const argv = require('minimist')(process.argv.slice(2));
 var FileWriter = require('wav').FileWriter;
 
-let calluuid ="" ;
+let calluuid = "";
 let agentId = "1ab68e4b-a14d-4e8f-b98d-d5f56b716218";
 
 const port = argv.port && parseInt(argv.port) ? parseInt(argv.port) : 3002
@@ -44,7 +44,7 @@ async function sayTTSText(text) {
     }
     */
     let data = {
-        "cccml": "<Response id='Id2'><Say>"+text+"</Say><Play loop='1'>silence_stream://30000</Play></Response>",
+        "cccml": "<Response id='Id2'><Say>" + text + "</Say><Play loop='1'>silence_stream://30000</Play></Response>",
     }
     request.post(
         'http://localhost:8888/v1.0/accounts/123/calls/CID__' + calluuid + '/modify',
@@ -64,14 +64,14 @@ async function sayTTSText(text) {
 
 let sessionId = Math.random().toString(36).substring(7);
 function getDialogflowCXStream() {
-   
+
     /**
      * Example for regional endpoint:
      *   const location = 'us-central1'
      *   const client = new SessionsClient({apiEndpoint: 'us-central1-dialogflow.googleapis.com'})
      */
     const location = 'us-central1'
-    const client = new SessionsClient({apiEndpoint: 'us-central1-dialogflow.googleapis.com'})
+    const client = new SessionsClient({ apiEndpoint: 'us-central1-dialogflow.googleapis.com' })
     const sessionPath = client.projectLocationAgentSessionPath(
         projectId,
         location,
@@ -95,11 +95,8 @@ function getDialogflowCXStream() {
                 let responseData = data.detectIntentResponse.queryResult.responseMessages[0].text.text[0];
                 console.log(`text file ${responseData}`);
                 writeFlag = false;
-                detectStream.end(); 
+                detectStream.end();
                 sayTTSText(responseData);
-
-        
-
             }
         });
 
@@ -116,6 +113,9 @@ function getDialogflowCXStream() {
             },
             languageCode: languageCode,
         },
+        query_params:{
+            analyze_query_text_sentiment:true,
+        }
     };
     detectStream.write(initialStreamRequest);
 
@@ -138,7 +138,7 @@ wss.on('connection', (ws, req) => {
     ws.on('message', (message) => {
         if (typeof message === 'string') {
             console.log(`received message: ${message}`);
-            calluuid =JSON.parse(message).uuid;
+            calluuid = JSON.parse(message).uuid;
             console.log(`UUID: ${calluuid}`);
         } else if (message instanceof Buffer) {
             // Stream the audio from audio to Dialogflow.
@@ -156,7 +156,7 @@ wss.on('connection', (ws, req) => {
     ws.on('close', (code, reason) => {
         console.log(`socket closed ${code}:${reason}`);
         dialogflowCXStreamer.end();
-	sessionId = Math.random().toString(36).substring(7);
+        sessionId = Math.random().toString(36).substring(7);
     });
 });
 
