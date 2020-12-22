@@ -7,7 +7,7 @@ const argv = require('minimist')(process.argv.slice(2));
 var FileWriter = require('wav').FileWriter;
 
 let calluuid ="" ;
-let agentId = "5078882a-5660-4e48-8d63-4b54480b7fb5";
+let agentId = "1ab68e4b-a14d-4e8f-b98d-d5f56b716218";
 
 const port = argv.port && parseInt(argv.port) ? parseInt(argv.port) : 3002
 const audioPath = "/tmp/"
@@ -62,6 +62,7 @@ async function sayTTSText(text) {
     )
 }
 
+let sessionId = Math.random().toString(36).substring(7);
 function getDialogflowCXStream() {
    
     /**
@@ -71,7 +72,6 @@ function getDialogflowCXStream() {
      */
     const location = 'us-central1'
     const client = new SessionsClient({apiEndpoint: 'us-central1-dialogflow.googleapis.com'})
-    const sessionId = Math.random().toString(36).substring(7);
     const sessionPath = client.projectLocationAgentSessionPath(
         projectId,
         location,
@@ -156,6 +156,7 @@ wss.on('connection', (ws, req) => {
     ws.on('close', (code, reason) => {
         console.log(`socket closed ${code}:${reason}`);
         dialogflowCXStreamer.end();
+	sessionId = Math.random().toString(36).substring(7);
     });
 });
 
