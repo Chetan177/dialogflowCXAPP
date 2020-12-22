@@ -35,7 +35,7 @@ function writeAudioToFile(audioBuffer) {
 }
 
 
-async function sayTTSText(text) {
+async function sayTTSText(text, hangupFlag) {
     /*
     modify API request
     /v1.0/accounts/{accID}/calls/{uuid}/modify
@@ -46,6 +46,12 @@ async function sayTTSText(text) {
     let data = {
         "cccml": "<Response id='Id2'><Say>" + text + "</Say><Play loop='1'>silence_stream://30000</Play></Response>",
     }
+    if (hangupFlag){
+        data = {
+            "cccml": "<Response id='Id2'><Say>" + text + "</Say><Hangup></Hangup></Response>",
+        }
+    }
+    
     request.post(
         'http://localhost:8888/v1.0/accounts/123/calls/CID__' + calluuid + '/modify',
         {
@@ -96,7 +102,11 @@ function getDialogflowCXStream() {
                 console.log(`text file ${responseData}`);
                 writeFlag = false;
                 detectStream.end();
-                sayTTSText(responseData);
+                if (data.detectIntentResponse.queryResult.currentPage.displayName == 'End Session'){
+                    sayTTSText(responseData, true);
+                }else{
+                    sayTTSText(responseData, false);
+                }
             }
         });
 
