@@ -44,7 +44,7 @@ async function sayTTSText(text) {
     }
     */
     let data = {
-        "cccml": "<Response id='Id2'><Say>"+text+"</Say></Response>",
+        "cccml": "<Response id='Id2'><Say>"+text+"</Say><Play loop='1'>silence_stream://30000</Play></Response>",
     }
     request.post(
         'http://localhost:8888/v1.0/accounts/123/calls/CID__' + calluuid + '/modify',
