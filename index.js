@@ -93,15 +93,13 @@ function getDialogflowCXStream() {
             } else if (data.detectIntentResponse.queryResult) {
                 console.log('----------------------------------------------');
                 console.log(util.inspect(data, { showHidden: false, depth: null }));
+                let responseData = data.detectIntentResponse.queryResult.responseMessages[0].text.text[0];
+                console.log(`text file ${responseData}`);
+                writeFlag = false;
+                detectStream.end() 
+                sayTTSText()
 
-                if (data.responseId == '' && data.recognitionResult == null && data.queryResult == null) {
-                    let audioFile = writeAudioToFile(data.outputAudio);
-                    console.log(`audio file location: ${audioFile}`);
-                    writeFlag = false;
-                    detectStream.end() 
-                    sayTTSText(data.detectIntentResponse.queryResult.responseMessages[0].text.text[0])
-
-                }
+        
 
             }
         });
