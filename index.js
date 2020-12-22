@@ -24,6 +24,12 @@ const sampleRateHertz = 16000;
 const languageCode = 'en';
 let writeFlag = true;
 
+function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  } 
+
 function writeAudioToFile(audioBuffer) {
     let filePath = audioPath + uuid.v4() + '.wav'
     let outputFileStream = new FileWriter(filePath, {
@@ -35,21 +41,38 @@ function writeAudioToFile(audioBuffer) {
 }
 
 
-function callWebhook(){
+function callWebhook() {
     request.get(
         'https://uez400j4vb.execute-api.us-east-1.amazonaws.com/stage1/casecreate?hostName=dev63210.service-now.com&authToken=YWRtaW46dW1xeFpWd0IwN0tN&contact=9654046510&short_description=create',
         (error, res, body) => {
+            let response = JSON.parse(res.body);
+            console.log(response);
             if (error) {
                 console.error(error);
                 return
             }
-            sayTTSText("Request has been Created. Your Case number is "+res.response.number, true );
-           
+            sleep(15000);
+            sayTTSText("Request has been Created. Your Case number is " + response.response.number, true);
+
         }
     )
 }
 
-
+async function customWebhook(data) {
+    if (data.queryResult.sentimentAnalysisResult) {
+        let score = data.queryResult.sentimentAnalysisResult.score;
+        if (score < 0) {
+            request.post({ url: "https://webhook.site/8498a0da-70d0-4477-9238-848ee12582b8", body: data.queryResult },
+                (error, res, body) => {
+                    if (error) {
+                        console.error(error);
+                        return
+                    }
+                    
+                });
+        }
+    }
+}
 
 async function sayTTSText(text, hangupFlag) {
     /*
@@ -62,12 +85,12 @@ async function sayTTSText(text, hangupFlag) {
     let data = {
         "cccml": "<Response id='Id2'><Say>" + text + "</Say><Play loop='1'>silence_stream://30000</Play></Response>",
     }
-    if (hangupFlag){
+    if (hangupFlag) {
         data = {
             "cccml": "<Response id='Id2'><Say>" + text + "</Say><Hangup></Hangup></Response>",
         }
     }
-    
+
     request.post(
         'http://localhost:8888/v1.0/accounts/123/calls/CID__' + calluuid + '/modify',
         {
@@ -112,17 +135,18 @@ function getDialogflowCXStream() {
                     `Intermediate transcript: ${data.recognitionResult.transcript}`
                 );
             } else if (data.detectIntentResponse.queryResult) {
+                customWebhook(data);
                 console.log('----------------------------------------------');
                 console.log(util.inspect(data, { showHidden: false, depth: null }));
                 let responseData = data.detectIntentResponse.queryResult.responseMessages[0].text.text[0];
                 console.log(`text file ${responseData}`);
                 writeFlag = false;
-                if (data.detectIntentResponse.queryResult.currentPage.displayName == 'End Session'){
-                    sayTTSText(responseData, false);
-                    detectStream.end();
-                }else{
+                if (data.detectIntentResponse.queryResult.currentPage.displayName == 'End Session') {
                     sayTTSText(responseData, false);
                     callWebhook();
+                } else {
+                    sayTTSText(responseData, false);
+                    detectStream.end();
                 }
             }
         });
@@ -140,8 +164,8 @@ function getDialogflowCXStream() {
             },
             languageCode: languageCode,
         },
-        queryParams:{
-            analyzeQueryTextSentiment:true,
+        queryParams: {
+            analyzeQueryTextSentiment: true,
         }
     };
     detectStream.write(initialStreamRequest);
