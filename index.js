@@ -101,12 +101,12 @@ function getDialogflowCXStream() {
                 let responseData = data.detectIntentResponse.queryResult.responseMessages[0].text.text[0];
                 console.log(`text file ${responseData}`);
                 writeFlag = false;
-                detectStream.end();
                 if (data.detectIntentResponse.queryResult.currentPage.displayName == 'End Session'){
                     sayTTSText(responseData, true);
                 }else{
                     sayTTSText(responseData, false);
                 }
+                detectStream.end();
             }
         });
 
@@ -123,8 +123,8 @@ function getDialogflowCXStream() {
             },
             languageCode: languageCode,
         },
-        query_params:{
-            analyze_query_text_sentiment:true,
+        queryParams:{
+            analyzeQueryTextSentiment:true,
         }
     };
     detectStream.write(initialStreamRequest);
