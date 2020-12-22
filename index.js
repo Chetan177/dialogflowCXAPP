@@ -86,8 +86,24 @@ function getDialogflowCXStream() {
         .streamingDetectIntent()
         .on('error', console.error)
         .on('data', data => {
-            console.log(data)
-           // sayTTSText(data.detectIntentResponse.queryResult.responseMessages[0].text.text[0])
+            if (data.recognitionResult) {
+                console.log(
+                    `Intermediate transcript: ${data.recognitionResult.transcript}`
+                );
+            } else if (data.detectIntentResponse.queryResult) {
+                console.log('----------------------------------------------');
+                console.log(util.inspect(data, { showHidden: false, depth: null }));
+
+                if (data.responseId == '' && data.recognitionResult == null && data.queryResult == null) {
+                    let audioFile = writeAudioToFile(data.outputAudio);
+                    console.log(`audio file location: ${audioFile}`);
+                    writeFlag = false;
+                    detectStream.end() 
+                    sayTTSText(data.detectIntentResponse.queryResult.responseMessages[0].text.text[0])
+
+                }
+
+            }
         });
 
     // Write the initial stream request to config for audio input.
@@ -103,19 +119,6 @@ function getDialogflowCXStream() {
             },
             languageCode: languageCode,
         },
-        output_audio_config: {
-            audio_encoding: "OUTPUT_AUDIO_ENCODING_LINEAR_16",
-            sample_rate_hertz: 24000,
-            synthesize_speech_config: {
-              speaking_rate: 1,
-              pitch: 3,
-              volume_gain_db: 16,
-              voice: {
-                name: "",
-                ssml_gender: "SSML_VOICE_GENDER_FEMALE"
-              }
-            }
-          },
     };
     detectStream.write(initialStreamRequest);
 
