@@ -22,7 +22,6 @@ const projectId = googleCred.project_id;
 const encoding = 'AUDIO_ENCODING_LINEAR_16';
 const sampleRateHertz = 16000;
 const languageCode = 'en';
-const location = 'us-central1'
 let writeFlag = true;
 
 function writeAudioToFile(audioBuffer) {
@@ -96,8 +95,8 @@ function getDialogflowCXStream() {
                 let responseData = data.detectIntentResponse.queryResult.responseMessages[0].text.text[0];
                 console.log(`text file ${responseData}`);
                 writeFlag = false;
-                detectStream.end() 
-                sayTTSText()
+                detectStream.end(); 
+                sayTTSText(responseData);
 
         
 
