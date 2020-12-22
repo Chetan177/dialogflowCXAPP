@@ -37,12 +37,8 @@ function writeAudioToFile(audioBuffer) {
 
 
 function getDialogflowCXStream() {
-    const client = new SessionsClient();
-    /**
-     * Example for regional endpoint:
-     *   const location = 'us-central1'
-     *   const client = new SessionsClient({apiEndpoint: 'us-central1-dialogflow.googleapis.com'})
-     */
+    const location = 'us-central1'
+    const client = new SessionsClient({apiEndpoint: 'us-central1-dialogflow.googleapis.com'})
     const sessionId = Math.random().toString(36).substring(7);
     const sessionPath = client.projectLocationAgentSessionPath(
         projectId,
