@@ -7,9 +7,9 @@ const argv = require('minimist')(process.argv.slice(2));
 var FileWriter = require('wav').FileWriter;
 
 let calluuid ="" ;
-let agentId = ""
+let agentId = "Travel: car rental"
 
-const port = argv.port && parseInt(argv.port) ? parseInt(argv.port) : 3001
+const port = argv.port && parseInt(argv.port) ? parseInt(argv.port) : 3002
 const audioPath = "/tmp/"
 
 const credLocation = process.env.GOOGLE_APPLICATION_CREDENTIALS;
@@ -22,7 +22,7 @@ const projectId = googleCred.project_id;
 const encoding = 'AUDIO_ENCODING_LINEAR_16';
 const sampleRateHertz = 16000;
 const languageCode = 'en';
-
+const location = 'us-central1'
 let writeFlag = true;
 
 function writeAudioToFile(audioBuffer) {
@@ -36,13 +36,42 @@ function writeAudioToFile(audioBuffer) {
 }
 
 
+async function sayTTSText(text) {
+    /*
+    modify API request
+    /v1.0/accounts/{accID}/calls/{uuid}/modify
+    {
+      "cccml": "<Response id='ID2'><Play loop='1'>https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand3.wav</Play></Response>",
+    }
+    */
+    let data = {
+        "cccml": "<Response id='Id2'><Say>"+text+"</Say></Response>",
+    }
+    request.post(
+        'http://localhost:8888/v1.0/accounts/123/calls/CID__' + calluuid + '/modify',
+        {
+            json: data
+        },
+        (error, res, body) => {
+            if (error) {
+                console.error(error)
+                return
+            }
+            console.log(`statusCode: ${res.statusCode}`)
+            console.log(body)
+        }
+    )
+}
+
 function getDialogflowCXStream() {
-    const client = new SessionsClient();
+   
     /**
      * Example for regional endpoint:
      *   const location = 'us-central1'
      *   const client = new SessionsClient({apiEndpoint: 'us-central1-dialogflow.googleapis.com'})
      */
+    const location = 'us-central1'
+    const client = new SessionsClient({apiEndpoint: 'us-central1-dialogflow.googleapis.com'})
     const sessionId = Math.random().toString(36).substring(7);
     const sessionPath = client.projectLocationAgentSessionPath(
         projectId,
@@ -57,25 +86,8 @@ function getDialogflowCXStream() {
         .streamingDetectIntent()
         .on('error', console.error)
         .on('data', data => {
-            if (data.recognitionResult) {
-                console.log(
-                    `Intermediate Transcript: ${data.recognitionResult.transcript}`
-                );
-            } else {
-                console.log('Detected Intent:');
-                const result = data.detectIntentResponse.queryResult;
-
-                console.log(`User Query: ${result.transcript}`);
-                for (const message of result.responseMessages) {
-                    if (message.text) {
-                        console.log(`Agent Response: ${message.text.text}`);
-                    }
-                }
-                if (result.match.intent) {
-                    console.log(`Matched Intent: ${result.match.intent.displayName}`);
-                }
-                console.log(`Current Page: ${result.currentPage.displayName}`);
-            }
+            console.log(data)
+            sayTTSText(data.detectIntentResponse.queryResult.responseMessages[0].text.text[0])
         });
 
     // Write the initial stream request to config for audio input.
