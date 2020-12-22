@@ -62,7 +62,7 @@ async function customWebhook(data) {
     if (data.queryResult.sentimentAnalysisResult) {
         let score = data.queryResult.sentimentAnalysisResult.score;
         if (score < 0) {
-            request.post({ url: "https://webhook.site/8498a0da-70d0-4477-9238-848ee12582b8", body: data.queryResult },
+            request.post({ url: "https://webhook.site/8498a0da-70d0-4477-9238-848ee12582b8", body: JSON.stringify(data.queryResult.sentimentAnalysisResult) },
                 (error, res, body) => {
                     if (error) {
                         console.error(error);
@@ -135,7 +135,7 @@ function getDialogflowCXStream() {
                     `Intermediate transcript: ${data.recognitionResult.transcript}`
                 );
             } else if (data.detectIntentResponse.queryResult) {
-                customWebhook(data);
+                customWebhook(data.detectIntentResponse);
                 console.log('----------------------------------------------');
                 console.log(util.inspect(data, { showHidden: false, depth: null }));
                 let responseData = data.detectIntentResponse.queryResult.responseMessages[0].text.text[0];
