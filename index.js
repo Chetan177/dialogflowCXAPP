@@ -41,9 +41,9 @@ function writeAudioToFile(audioBuffer) {
 }
 
 
-function callWebhook() {
+function callWebhook(responseData) {
     request.get(
-        'https://uez400j4vb.execute-api.us-east-1.amazonaws.com/stage1/casecreate?hostName=dev63210.service-now.com&authToken=YWRtaW46dW1xeFpWd0IwN0tN&contact=9654046510&short_description=create',
+        'https://uez400j4vb.execute-api.us-east-1.amazonaws.com/stage1/casecreate?hostName=dev63210.service-now.com&authToken=YWRtaW46dW1xeFpWd0IwN0tN&contact=2db5dc78db516010a5cf9235ca9619c1&short_description='+responseData,
         (error, res, body) => {
             let response = JSON.parse(res.body);
             console.log(response);
@@ -143,7 +143,7 @@ function getDialogflowCXStream() {
                 writeFlag = false;
                 if (data.detectIntentResponse.queryResult.currentPage.displayName == 'End Session') {
                     sayTTSText(responseData, false);
-                    callWebhook();
+                    callWebhook(responseData);
                 } else {
                     sayTTSText(responseData, false);
                     detectStream.end();
