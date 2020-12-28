@@ -35,16 +35,16 @@ function writeAudioToFile(audioBuffer) {
 }
 
 
-function callWebhook(){
-    request.get(
-        'https://uez400j4vb.execute-api.us-east-1.amazonaws.com/stage1/casecreate?hostName=dev63210.service-now.com&authToken=YWRtaW46dW1xeFpWd0IwN0tN&contact=9654046510&short_description=create',
+function callWebhook(data){
+    //https://uez400j4vb.execute-api.us-east-1.amazonaws.com/stage1/casecreate?hostName=dev63210.service-now.com&authToken=YWRtaW46dW1xeFpWd0IwN0tN&contact=9654046510&short_description=create
+    request.post(
+        'https://webhook.site/8498a0da-70d0-4477-9238-848ee12582b8',data,
         (error, res, body) => {
             if (error) {
                 console.error(error)
                 return
             }
             sayTTSText("Request has been Created. Your Case number is "+res.response.number,false );
-           
         }
     )
 }
@@ -118,14 +118,10 @@ function getDialogflowCXStream() {
                 console.log(`text file ${responseData}`);
                 writeFlag = false;
                 if (data.detectIntentResponse.queryResult.currentPage.displayName == 'End Session'){
-                    sayTTSText(responseData, true);
-       
-
-
+                    sayTTSText(responseData, false);
+                    setTimeout(callWebhook(data),1000);
                 }else{
-                    sayTTSText(responseData, true);
-                    
-                    callWebhook();
+                    sayTTSText(responseData, false);
                 }
                 detectStream.end();
             }
